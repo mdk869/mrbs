@@ -72,7 +72,7 @@ function App() {
       case 'user-dashboard':
         return (
           <Layout
-            title="Meeting Room Booking"
+            title="eBilik Booking"
             showLogout={true}
             onLogout={handleLogout}
             showNavigation={true}
@@ -109,7 +109,7 @@ function App() {
       case 'admin-dashboard':
         return (
           <Layout
-            title="Meeting Room Management"
+            title="eBilik Management"
             showLogout={true}
             onLogout={handleLogout}
             showNavigation={true}

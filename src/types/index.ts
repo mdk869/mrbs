@@ -7,6 +7,8 @@ export interface Reservation {
   startTime: string;
   endTime: string;
   roomName: string;
+  tingkatan: string;
+  kelas: string;
   purpose: string;
   status: 'confirmed' | 'pending' | 'cancelled';
   createdAt: string;

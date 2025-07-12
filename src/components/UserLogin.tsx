@@ -75,11 +75,11 @@ export const UserLogin: React.FC<UserLoginProps> = ({ onLogin }) => {
             )}
           </div>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            {isRegistering ? 'Create Account' : 'Welcome Back'}
+            {isRegistering ? 'Create Account' : 'Welcome to eBilik'}
           </h2>
           <p className="text-gray-600">
             {isRegistering 
-              ? 'Register to book meeting rooms' 
+              ? 'Register to book eBilik' 
               : 'Sign in to your account'
             }
           </p>

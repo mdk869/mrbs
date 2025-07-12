@@ -39,7 +39,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
             Admin Login
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Access the meeting room management dashboard
+            Access the eBilik room management dashboard
           </p>
           <div className="mt-4 p-4 bg-blue-50 rounded-md">
             <p className="text-sm text-blue-800">

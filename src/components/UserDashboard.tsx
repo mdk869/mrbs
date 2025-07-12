@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, MapPin, Plus, History, User as UserIcon } from 'lucide-react';
+import { Calendar, Clock, MapPin, Plus, History, User as UserIcon, SchoolIcon } from 'lucide-react';
 import { storageUtils } from '../utils/storage';
 import { Reservation, User } from '../types';
 import { format, parseISO, isSameDay } from 'date-fns';
@@ -91,7 +91,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ user, onCreateRese
       <div className="bg-gradient-to-r from-primary-600 to-secondary-600 rounded-xl p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold mb-2">Welcome back, {user.fullName}!</h1>
+            <h1 className="text-2xl font-bold mb-2">Welcome, {user.fullName}!</h1>
             <p className="text-primary-100">
               <UserIcon className="h-4 w-4 inline mr-1" />
               {user.userType.charAt(0).toUpperCase() + user.userType.slice(1)} • {user.email}
@@ -243,6 +243,10 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ user, onCreateRese
                             <UserIcon className="h-4 w-4 mr-1" />
                             {reservation.userId === user.id ? 'Your booking' : reservation.userName}
                           </div>
+                          <div className="flex items-center">
+                            <SchoolIcon className="h-4 w-4 mr-1" />
+                            {reservation.tingkatan} {reservation.kelas}
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -277,7 +281,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ user, onCreateRese
                             {reservation.status}
                           </span>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm text-gray-600">
                           <div className="flex items-center">
                             <Calendar className="h-4 w-4 mr-1" />
                             {format(parseISO(reservation.date), 'MMM dd, yyyy')}
@@ -287,9 +291,14 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ user, onCreateRese
                             {reservation.startTime} - {reservation.endTime}
                           </div>
                           <div className="flex items-center">
+                            <SchoolIcon className="h-4 w-4 mr-1" />
+                            {reservation.tingkatan} {reservation.kelas}
+                          </div>
+                          <div className="flex items-center">
                             <MapPin className="h-4 w-4 mr-1" />
                             {reservation.purpose}
                           </div>
+                          
                         </div>
                       </div>
                     ))}

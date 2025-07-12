@@ -1,15 +1,32 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, User, Mail, MapPin, FileText, Check } from 'lucide-react';
+import { Calendar, Clock, User, Mail, MapPin, FileText, Check, ListOrdered, PresentationIcon } from 'lucide-react';
 import { storageUtils } from '../utils/storage';
 import { generateTimeSlots, getAvailableEndTimes } from '../utils/timeSlots';
 import { format, addDays, startOfToday } from 'date-fns';
 
 const MEETING_ROOMS = [
-  'Conference Room A',
-  'Conference Room B',
-  'Small Meeting Room',
-  'Executive Boardroom',
-  'Collaboration Space'
+  'Makmal Komputer 1',
+  'Makmal Komputer 2',
+  'Makmal Komputer 3',
+  'Bilik Tayangan',
+  'Bilik Audio/Visual'
+];
+const Tingkatan = [
+  '1',
+  '2',
+  '3',
+  '4',
+  '5'
+];
+const Kelas = [
+  'Ibnu Sina',
+  'Ibnu Rusyad',
+  'Ibnu Khaldun',
+  'Ibnu Zuhri',
+  'Al-Khawarizmi',
+  'Al-Farabi',
+  'Al-Biruni',
+  'Al-Haitham'
 ];
 
 interface UserReservationProps {
@@ -87,7 +104,7 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
         </div>
         <h3 className="text-lg font-medium text-gray-900 mb-2">Reservation Confirmed!</h3>
         <p className="text-gray-600 mb-6">
-          Your meeting room has been successfully booked. You will receive a confirmation email shortly.
+          Your eBilik room has been successfully booked. You will receive a confirmation email shortly.
         </p>
         <button
           onClick={() => setSubmitted(false)}
@@ -102,7 +119,7 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
   return (
     <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Book a Meeting Room</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Book a eBilik Room</h2>
         <p className="text-gray-600">Reserve your preferred meeting space with ease</p>
       </div>
 
@@ -162,7 +179,7 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               <MapPin className="h-4 w-4 inline mr-1" />
-              Meeting Room
+              eBilik Room
             </label>
             <select
               required
@@ -176,6 +193,47 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
               <option value="">Select a room</option>
               {MEETING_ROOMS.map((room) => (
                 <option key={room} value={room}>{room}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <ListOrdered className="h-4 w-4 inline mr-1" />
+              Tingkatan
+            </label>
+            <select
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-white"
+              value={formData.tingkatan}
+              onChange={(e) => {
+                setFormData({ ...formData, tingkatan: e.target.value })
+                setAvailableEndTimes([]);
+              }}
+            >
+              <option value="">Select Tingkatan</option>
+              {Tingkatan.map((ting) => (
+                <option key={ting} value={ting}>{ting}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <PresentationIcon className="h-4 w-4 inline mr-1" />
+              Kelas
+            </label>
+            <select
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-white"
+              value={formData.kelas}
+              onChange={(e) => {
+                setFormData({ ...formData, kelas: e.target.value });
+                setAvailableEndTimes([]);
+              }}
+            >
+              <option value="">Select Kelas</option>
+              {Kelas.map((kelas) => (
+                <option key={kelas} value={kelas}>{kelas}</option>
               ))}
             </select>
           </div>
@@ -240,7 +298,7 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
           disabled={isSubmitting}
           className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
         >
-          {isSubmitting ? 'Booking...' : 'Book Meeting Room'}
+          {isSubmitting ? 'Booking...' : 'Book eBilik Room'}
         </button>
       </form>
     </div>
