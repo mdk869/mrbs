@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { User, Mail, Lock, UserPlus, LogIn } from 'lucide-react';
 import { storageUtils } from '../utils/storage';
-import { User as UserType } from '../types';
+import { AdminUser as UserType } from '../types';
 
 interface UserLoginProps {
   onLogin: (user: UserType) => void;
@@ -59,7 +59,7 @@ export const UserLogin: React.FC<UserLoginProps> = ({ onLogin }) => {
       email: '',
       password: '',
       fullName: '',
-      userType: 'student'
+      userType: 'teacher'
     });
   };
 

@@ -42,7 +42,9 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
     startTime: '',
     endTime: '',
     roomName: '',
-    purpose: ''
+    purpose: '',
+    tingkatan: '',
+    kelas: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -87,7 +89,9 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
         startTime: '',
         endTime: '',
         roomName: '',
-        purpose: ''
+        purpose: '',
+        tingkatan: '',
+        kelas: ''
       });
     } catch (error) {
       console.error('Error submitting reservation:', error);
