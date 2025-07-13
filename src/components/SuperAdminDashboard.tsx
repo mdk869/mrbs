@@ -84,15 +84,15 @@ export const SuperAdminDashboard: React.FC = () => {
     }
   };
 
-  const handleExportData = (format: 'json' | 'csv') => {
-    const data = storageUtils.exportReservations(format);
+  const handleExportData = (exportFormat: 'json' | 'csv') => {
+    const data = storageUtils.exportReservations(exportFormat);
     const blob = new Blob([data], { 
-      type: format === 'csv' ? 'text/csv' : 'application/json' 
+      type: exportFormat === 'csv' ? 'text/csv' : 'application/json' 
     });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `reservations_${format}_${format(new Date(), 'yyyy-MM-dd')}.${format}`;
+    a.download = `reservations_${exportFormat}_${format(new Date(), 'yyyy-MM-dd')}.${exportFormat}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
