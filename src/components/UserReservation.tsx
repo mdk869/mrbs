@@ -120,8 +120,6 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
       </div>
     );
   }
-
-
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Book a eBilik Room</h2>
         <p className="text-gray-600">Reserve your preferred meeting space with ease</p>
       </div>
