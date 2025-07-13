@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, MapPin, Plus, History, User as UserIcon, SchoolIcon, StickyNote, AlignLeftIcon } from 'lucide-react';
+import { Calendar, Clock, MapPin, Plus, History, User as UserIcon, SchoolIcon, StickyNote, AlignLeftIcon, Edit, Trash2 } from 'lucide-react';
 import { storageUtils } from '../utils/storage';
 import { Reservation, User } from '../types';
 import { format, parseISO, isSameDay } from 'date-fns';
@@ -16,6 +16,8 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ user, onCreateRese
   const [allReservations, setAllReservations] = useState<Reservation[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [activeTab, setActiveTab] = useState<'calendar' | 'history'>('calendar');
+  const [editingReservation, setEditingReservation] = useState<string | null>(null);
+  const [editFormData, setEditFormData] = useState<Partial<Reservation>>({});
 
   useEffect(() => {
     loadReservations();
@@ -26,6 +28,40 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ user, onCreateRese
     const allRes = storageUtils.getReservations();
     setUserReservations(userRes);
     setAllReservations(allRes);
+  };
+
+  const handleEditReservation = (reservation: Reservation) => {
+    setEditingReservation(reservation.id);
+    setEditFormData({
+      date: reservation.date,
+      startTime: reservation.startTime,
+      endTime: reservation.endTime,
+      roomName: reservation.roomName,
+      purpose: reservation.purpose,
+      tingkatan: reservation.tingkatan,
+      kelas: reservation.kelas
+    });
+  };
+
+  const handleSaveEdit = () => {
+    if (editingReservation) {
+      storageUtils.updateReservation(editingReservation, editFormData);
+      setEditingReservation(null);
+      setEditFormData({});
+      loadReservations();
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingReservation(null);
+    setEditFormData({});
+  };
+
+  const handleDeleteReservation = (id: string) => {
+    if (window.confirm('Are you sure you want to delete this reservation?')) {
+      storageUtils.deleteReservation(id);
+      loadReservations();
+    }
   };
 
   const getReservationsForDate = (date: Date) => {
@@ -274,32 +310,124 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ user, onCreateRese
                   {userReservations
                     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                     .map((reservation) => (
-                      <div key={reservation.id} className="bg-gray-50 rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-medium text-gray-900">{reservation.roomName}</h4>
-                          <span className={getStatusBadge(reservation.status)}>
-                            {reservation.status}
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm text-gray-600">
-                          <div className="flex items-center">
-                            <Calendar className="h-4 w-4 mr-1" />
-                            {format(parseISO(reservation.date), 'MMM dd, yyyy')}
+                      <div key={reservation.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        {editingReservation === reservation.id ? (
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                                <input
+                                  type="date"
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                  value={editFormData.date}
+                                  onChange={(e) => setEditFormData({ ...editFormData, date: e.target.value })}
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Room</label>
+                                <select
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                  value={editFormData.roomName}
+                                  onChange={(e) => setEditFormData({ ...editFormData, roomName: e.target.value })}
+                                >
+                                  <option value="Makmal Komputer 1">Makmal Komputer 1</option>
+                                  <option value="Makmal Komputer 2">Makmal Komputer 2</option>
+                                  <option value="Makmal Komputer 3">Makmal Komputer 3</option>
+                                  <option value="Bilik Tayangan">Bilik Tayangan</option>
+                                  <option value="Bilik Audio/Visual">Bilik Audio/Visual</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+                                <input
+                                  type="time"
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                  value={editFormData.startTime}
+                                  onChange={(e) => setEditFormData({ ...editFormData, startTime: e.target.value })}
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+                                <input
+                                  type="time"
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                  value={editFormData.endTime}
+                                  onChange={(e) => setEditFormData({ ...editFormData, endTime: e.target.value })}
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">Purpose</label>
+                              <textarea
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                rows={2}
+                                value={editFormData.purpose}
+                                onChange={(e) => setEditFormData({ ...editFormData, purpose: e.target.value })}
+                              />
+                            </div>
+                            <div className="flex justify-end space-x-2">
+                              <button
+                                onClick={handleCancelEdit}
+                                className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                onClick={handleSaveEdit}
+                                className="px-3 py-1 text-sm bg-primary-600 text-white rounded-md hover:bg-primary-700"
+                              >
+                                Save
+                              </button>
+                            </div>
                           </div>
-                          <div className="flex items-center">
-                            <Clock className="h-4 w-4 mr-1" />
-                            {reservation.startTime} - {reservation.endTime}
+                        ) : (
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-medium text-gray-900">{reservation.roomName}</h4>
+                              <div className="flex items-center space-x-2">
+                                <span className={getStatusBadge(reservation.status)}>
+                                  {reservation.status}
+                                </span>
+                                {reservation.status === 'pending' && (
+                                  <>
+                                    <button
+                                      onClick={() => handleEditReservation(reservation)}
+                                      className="text-blue-600 hover:text-blue-800 p-1 rounded-md hover:bg-blue-50"
+                                      title="Edit reservation"
+                                    >
+                                      <Edit className="h-4 w-4" />
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteReservation(reservation.id)}
+                                      className="text-red-600 hover:text-red-800 p-1 rounded-md hover:bg-red-50"
+                                      title="Delete reservation"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm text-gray-600">
+                              <div className="flex items-center">
+                                <Calendar className="h-4 w-4 mr-1" />
+                                {format(parseISO(reservation.date), 'MMM dd, yyyy')}
+                              </div>
+                              <div className="flex items-center">
+                                <Clock className="h-4 w-4 mr-1" />
+                                {reservation.startTime} - {reservation.endTime}
+                              </div>
+                              <div className="flex items-center">
+                                <SchoolIcon className="h-4 w-4 mr-1" />
+                                {reservation.tingkatan} {reservation.kelas}
+                              </div>
+                              <div className="flex items-center">
+                                <AlignLeftIcon className="h-4 w-4 mr-1" />
+                                {reservation.purpose}
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex items-center">
-                            <SchoolIcon className="h-4 w-4 mr-1" />
-                            {reservation.tingkatan} {reservation.kelas}
-                          </div>
-                          <div className="flex items-center">
-                            <AlignLeftIcon className="h-4 w-4 mr-1" />
-                            {reservation.purpose}
-                          </div>
-                          
-                        </div>
+                        )}
                       </div>
                     ))}
                 </div>

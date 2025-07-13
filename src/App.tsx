@@ -1,59 +1,50 @@
 import React, { useState } from 'react';
 import { Layout } from './components/Layout';
-import { AdminLogin } from './components/AdminLogin';
-import { UserLogin } from './components/UserLogin';
+import { Login } from './components/Login';
 import { UserDashboard } from './components/UserDashboard';
 import { AdminDashboard } from './components/AdminDashboard';
+import { SuperAdminDashboard } from './components/SuperAdminDashboard';
 import { UserReservation } from './components/UserReservation';
-import { User, AuthState } from './types';
+import { User, AdminUser, AuthState } from './types';
 
-type ViewMode = 'user-login' | 'user-dashboard' | 'user-reservation' | 'admin-login' | 'admin-dashboard';
+type ViewMode = 'login' | 'user-dashboard' | 'user-reservation' | 'admin-dashboard' | 'super-admin-dashboard';
 
 function App() {
-  const [currentView, setCurrentView] = useState<ViewMode>('user-login');
+  const [currentView, setCurrentView] = useState<ViewMode>('login');
   const [authState, setAuthState] = useState<AuthState>({
     isAuthenticated: false,
     user: null,
-    isAdmin: false
+    userRole: null
   });
 
-  const handleUserLogin = (user: User) => {
+  const handleLogin = (user: User | AdminUser, role: 'user' | 'admin' | 'super_admin') => {
     setAuthState({
       isAuthenticated: true,
       user,
-      isAdmin: false
+      userRole: role
     });
-    setCurrentView('user-dashboard');
-  };
 
-  const handleAdminLogin = () => {
-    setAuthState({
-      isAuthenticated: true,
-      user: null,
-      isAdmin: true
-    });
-    setCurrentView('admin-dashboard');
+    // Navigate based on role
+    switch (role) {
+      case 'user':
+        setCurrentView('user-dashboard');
+        break;
+      case 'admin':
+        setCurrentView('admin-dashboard');
+        break;
+      case 'super_admin':
+        setCurrentView('super-admin-dashboard');
+        break;
+    }
   };
 
   const handleLogout = () => {
     setAuthState({
       isAuthenticated: false,
       user: null,
-      isAdmin: false
+      userRole: null
     });
-    setCurrentView('user-login');
-  };
-
-  const handleNavigation = (view: 'user' | 'admin') => {
-    if (view === 'user') {
-      if (authState.isAuthenticated && !authState.isAdmin) {
-        setCurrentView('user-dashboard');
-      } else {
-        setCurrentView('user-login');
-      }
-    } else {
-      setCurrentView('admin-login');
-    }
+    setCurrentView('login');
   };
 
   const handleCreateReservation = () => {
@@ -64,23 +55,36 @@ function App() {
     setCurrentView('user-dashboard');
   };
 
+  const getLayoutTitle = () => {
+    switch (currentView) {
+      case 'user-dashboard':
+        return 'eBilik Booking';
+      case 'user-reservation':
+        return 'Create New Booking';
+      case 'admin-dashboard':
+        return 'eBilik Management - Admin';
+      case 'super-admin-dashboard':
+        return 'eBilik Management - Super Admin';
+      default:
+        return 'eBilik System';
+    }
+  };
+
   const renderContent = () => {
     switch (currentView) {
-      case 'user-login':
-        return <UserLogin onLogin={handleUserLogin} />;
+      case 'login':
+        return <Login onLogin={handleLogin} />;
       
       case 'user-dashboard':
         return (
           <Layout
-            title="eBilik Booking"
+            title={getLayoutTitle()}
             showLogout={true}
             onLogout={handleLogout}
-            showNavigation={true}
-            currentView="user"
-            onNavigate={handleNavigation}
+            userRole={authState.userRole}
           >
             <UserDashboard 
-              user={authState.user!} 
+              user={authState.user as User} 
               onCreateReservation={handleCreateReservation}
             />
           </Layout>
@@ -89,39 +93,44 @@ function App() {
       case 'user-reservation':
         return (
           <Layout
-            title="Create New Booking"
+            title={getLayoutTitle()}
             showLogout={true}
             onLogout={handleLogout}
-            showNavigation={true}
-            currentView="user"
-            onNavigate={handleNavigation}
+            userRole={authState.userRole}
           >
             <UserReservation 
-              user={authState.user!}
+              user={authState.user as User}
               onReservationComplete={handleReservationComplete}
             />
           </Layout>
         );
       
-      case 'admin-login':
-        return <AdminLogin onLogin={handleAdminLogin} />;
-      
       case 'admin-dashboard':
         return (
           <Layout
-            title="eBilik Management"
+            title={getLayoutTitle()}
             showLogout={true}
             onLogout={handleLogout}
-            showNavigation={true}
-            currentView="admin"
-            onNavigate={handleNavigation}
+            userRole={authState.userRole}
           >
             <AdminDashboard />
           </Layout>
         );
       
+      case 'super-admin-dashboard':
+        return (
+          <Layout
+            title={getLayoutTitle()}
+            showLogout={true}
+            onLogout={handleLogout}
+            userRole={authState.userRole}
+          >
+            <SuperAdminDashboard />
+          </Layout>
+        );
+      
       default:
-        return <UserLogin onLogin={handleUserLogin} />;
+        return <Login onLogin={handleLogin} />;
     }
   };
 

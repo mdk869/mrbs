@@ -1,14 +1,12 @@
 import React from 'react';
-import { Calendar, Users, LogOut, Home } from 'lucide-react';
+import { Calendar, LogOut, Shield, User } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
   title: string;
   showLogout?: boolean;
   onLogout?: () => void;
-  showNavigation?: boolean;
-  currentView?: 'user' | 'admin';
-  onNavigate?: (view: 'user' | 'admin') => void;
+  userRole?: 'user' | 'admin' | 'super_admin' | null;
 }
 
 export const Layout: React.FC<LayoutProps> = ({
@@ -16,10 +14,34 @@ export const Layout: React.FC<LayoutProps> = ({
   title,
   showLogout = false,
   onLogout,
-  showNavigation = false,
-  currentView,
-  onNavigate
+  userRole
 }) => {
+  const getRoleIcon = () => {
+    switch (userRole) {
+      case 'super_admin':
+        return <Shield className="h-5 w-5 text-red-600" />;
+      case 'admin':
+        return <Shield className="h-5 w-5 text-blue-600" />;
+      case 'user':
+        return <User className="h-5 w-5 text-green-600" />;
+      default:
+        return null;
+    }
+  };
+
+  const getRoleLabel = () => {
+    switch (userRole) {
+      case 'super_admin':
+        return 'Super Admin';
+      case 'admin':
+        return 'Admin';
+      case 'user':
+        return 'User';
+      default:
+        return '';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm border-b border-gray-200">
@@ -31,31 +53,13 @@ export const Layout: React.FC<LayoutProps> = ({
             </div>
             
             <div className="flex items-center space-x-4">
-              {showNavigation && onNavigate && (
-                <nav className="flex space-x-1">
-                  <button
-                    onClick={() => onNavigate('user')}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      currentView === 'user'
-                        ? 'bg-primary-100 text-primary-700'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <Home className="h-4 w-4 inline mr-1" />
-                    Book Room
-                  </button>
-                  <button
-                    onClick={() => onNavigate('admin')}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      currentView === 'admin'
-                        ? 'bg-primary-100 text-primary-700'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <Users className="h-4 w-4 inline mr-1" />
-                    Admin
-                  </button>
-                </nav>
+              {userRole && (
+                <div className="flex items-center space-x-2 px-3 py-1 bg-gray-100 rounded-full">
+                  {getRoleIcon()}
+                  <span className="text-sm font-medium text-gray-700">
+                    {getRoleLabel()}
+                  </span>
+                </div>
               )}
               
               {showLogout && onLogout && (

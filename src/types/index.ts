@@ -12,6 +12,7 @@ export interface Reservation {
   purpose: string;
   status: 'confirmed' | 'pending' | 'cancelled';
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface TimeSlot {
@@ -19,7 +20,32 @@ export interface TimeSlot {
   available: boolean;
 }
 
-export interface AdminUser {
-  username: string;
+export interface User {
+  id: string;
+  email: string;
   password: string;
+  fullName: string;
+  userType: 'teacher' | 'staff';
+  createdAt: string;
+}
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  password: string;
+  fullName: string;
+  role: 'super_admin' | 'admin';
+  createdAt: string;
+  isActive: boolean;
+}
+
+export interface AuthState {
+  isAuthenticated: boolean;
+  user: User | AdminUser | null;
+  userRole: 'user' | 'admin' | 'super_admin' | null;
+}
+
+export interface NotificationSettings {
+  emailNotifications: boolean;
+  reminderHours: number;
 }
