@@ -121,6 +121,19 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
     );
   }
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Book a eBilik Room</h2>
+  return (
+    <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
+      <div className="flex items-center justify-between mb-6">
+        <button
+          onClick={onReturnHome}
+          className="flex items-center text-primary-600 hover:text-primary-700 transition-colors"
+        >
+          <MapPin className="h-4 w-4 mr-1 transform rotate-180" />
+          Return to Home
+        </button>
+      </div>
+
+      <div className="text-center mb-8">
         <p className="text-gray-600">Reserve your preferred meeting space with ease</p>
       </div>
 
@@ -303,5 +316,6 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
         </button>
       </form>
     </div>
+  );
   );
 };
