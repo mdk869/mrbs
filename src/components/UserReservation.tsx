@@ -129,7 +129,7 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
           onClick={onReturnHome}
           className="flex items-center text-primary-600 hover:text-primary-700 transition-colors"
         >
-          <CircleArrowLeft className="h-4 w-4 mr-1 transform rotate-180" />
+          <ArrowLeftCircle className="h-4 w-4 mr-1 transform rotate-180" />
           Return to Home
         </button>
       </div>
