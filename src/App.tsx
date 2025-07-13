@@ -101,6 +101,7 @@ function App() {
             <UserReservation 
               user={authState.user as User}
               onReservationComplete={handleReservationComplete}
+              onReturnHome={() => setCurrentView('user-dashboard')}
             />
           </Layout>
         );
