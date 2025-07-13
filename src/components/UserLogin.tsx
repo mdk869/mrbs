@@ -13,7 +13,7 @@ export const UserLogin: React.FC<UserLoginProps> = ({ onLogin }) => {
     email: '',
     password: '',
     fullName: '',
-    userType: 'student' as 'student' | 'staff'
+    userType: 'teacher' as 'teacher' | 'staff'
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -143,9 +143,9 @@ export const UserLogin: React.FC<UserLoginProps> = ({ onLogin }) => {
                   required
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-white"
                   value={formData.userType}
-                  onChange={(e) => setFormData({ ...formData, userType: e.target.value as 'student' | 'staff' })}
+                  onChange={(e) => setFormData({ ...formData, userType: e.target.value as 'teacher' | 'staff' })}
                 >
-                  <option value="student">Student</option>
+                  <option value="teacher">Teacher</option>
                   <option value="staff">Staff</option>
                 </select>
               </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Calendar, Clock, User, Mail, MapPin, CheckCircle, XCircle, AlertCircle, Trash2 } from 'lucide-react';
+import { Search, Calendar, Clock, User, Mail, MapPin, CheckCircle, XCircle, AlertCircle, Trash2, SchoolIcon } from 'lucide-react';
 import { storageUtils } from '../utils/storage';
 import { Reservation } from '../types';
 import { format, parseISO } from 'date-fns';
@@ -229,6 +229,10 @@ export const AdminDashboard: React.FC = () => {
                           <div className="flex items-center">
                             <MapPin className="h-4 w-4 mr-1" />
                             {reservation.roomName}
+                          </div>
+                          <div className="flex items-center">
+                            <SchoolIcon className="h-4 w-4 mr-1" />
+                            {reservation.tingkatan} {reservation.kelas}
                           </div>
                           <div className="flex items-center">
                             <Calendar className="h-4 w-4 mr-1" />

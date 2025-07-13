@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, MapPin, Plus, History, User as UserIcon, SchoolIcon } from 'lucide-react';
+import { Calendar, Clock, MapPin, Plus, History, User as UserIcon, SchoolIcon, StickyNote, AlignLeftIcon } from 'lucide-react';
 import { storageUtils } from '../utils/storage';
 import { Reservation, User } from '../types';
 import { format, parseISO, isSameDay } from 'date-fns';
@@ -295,7 +295,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ user, onCreateRese
                             {reservation.tingkatan} {reservation.kelas}
                           </div>
                           <div className="flex items-center">
-                            <MapPin className="h-4 w-4 mr-1" />
+                            <AlignLeftIcon className="h-4 w-4 mr-1" />
                             {reservation.purpose}
                           </div>
                           
