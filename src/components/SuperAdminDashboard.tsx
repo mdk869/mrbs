@@ -19,7 +19,7 @@ import {
   Search,
   Filter
 } from 'lucide-react';
-import { storageUtils } from '../utils/storage';
+import { supabaseUtils } from '@/utils/supabaseUtils';
 import { Reservation, AdminUser, User as UserType } from '../types';
 import { format, parseISO } from 'date-fns';
 
@@ -42,20 +42,20 @@ export const SuperAdminDashboard: React.FC = () => {
     loadData();
   }, []);
 
-  const loadData = () => {
-    setReservations(storageUtils.getReservations());
-    setAdminUsers(storageUtils.getAdminUsers());
-    setUsers(storageUtils.getUsers());
+  const loadData = async () => {
+    setReservations(await supabaseUtils.getReservations());
+    setAdminUsers(await supabaseUtils.getAdminUsers());
+    setUsers(await supabaseUtils.getUsers());
   };
 
-  const handleStatusChange = (id: string, newStatus: Reservation['status']) => {
-    storageUtils.updateReservation(id, { status: newStatus });
+  const handleStatusChange = async (id: string, newStatus: Reservation['status']) => {
+    await supabaseUtils.updateReservation(id, { status: newStatus });
     loadData();
   };
 
-  const handleDeleteReservation = (id: string) => {
+  const handleDeleteReservation = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this reservation?')) {
-      storageUtils.deleteReservation(id);
+      await supabaseUtils.deleteReservation(id);
       loadData();
     }
   };
@@ -63,7 +63,7 @@ export const SuperAdminDashboard: React.FC = () => {
   const handleAddAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await storageUtils.addAdminUser(newAdminData);
+      await supabaseUtils.addAdminUser(newAdminData);
       setNewAdminData({ email: '', password: '', fullName: '', role: 'admin' });
       setShowAddAdmin(false);
       loadData();
@@ -72,20 +72,20 @@ export const SuperAdminDashboard: React.FC = () => {
     }
   };
 
-  const handleToggleAdminStatus = (id: string, currentStatus: boolean) => {
-    storageUtils.updateAdminUser(id, { isActive: !currentStatus });
+  const handleToggleAdminStatus = async (id: string, currentStatus: boolean) => {
+    await supabaseUtils.updateAdminUser(id, { isActive: !currentStatus });
     loadData();
   };
 
-  const handleDeleteAdmin = (id: string) => {
+  const handleDeleteAdmin = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this admin user?')) {
-      storageUtils.deleteAdminUser(id);
+      await supabaseUtils.deleteAdminUser(id);
       loadData();
     }
   };
 
-  const handleExportData = (exportFormat: 'json' | 'csv') => {
-    const data = storageUtils.exportReservations(exportFormat);
+  const handleExportData = async (exportFormat: 'json' | 'csv') => {
+    const data = await supabaseUtils.exportReservations(exportFormat);
     const blob = new Blob([data], { 
       type: exportFormat === 'csv' ? 'text/csv' : 'application/json' 
     });

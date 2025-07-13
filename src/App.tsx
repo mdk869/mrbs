@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layout } from './components/Layout';
 import { Login } from './components/Login';
 import { UserDashboard } from './components/UserDashboard';
@@ -6,8 +6,17 @@ import { AdminDashboard } from './components/AdminDashboard';
 import { SuperAdminDashboard } from './components/SuperAdminDashboard';
 import { UserReservation } from './components/UserReservation';
 import { User, AdminUser, AuthState } from './types';
+import { ResetPassword } from './components/ResetPasswordPage';
+import { ResetPasswordConfirm } from './components/ResetPasswordConfirm';
 
-type ViewMode = 'login' | 'user-dashboard' | 'user-reservation' | 'admin-dashboard' | 'super-admin-dashboard';
+type ViewMode =
+  | 'login'
+  | 'user-dashboard'
+  | 'user-reservation'
+  | 'admin-dashboard'
+  | 'super-admin-dashboard'
+  | 'reset-password'
+  | 'reset-password-confirm';
 
 function App() {
   const [currentView, setCurrentView] = useState<ViewMode>('login');
@@ -16,6 +25,13 @@ function App() {
     user: null,
     userRole: null
   });
+
+useEffect(() => {
+  const hash = window.location.hash;
+  if (hash.includes('access_token')) {
+    setCurrentView('reset-password-confirm');
+  }
+},  []); 
 
   const handleLogin = (user: User | AdminUser, role: 'user' | 'admin' | 'super_admin') => {
     setAuthState({
@@ -73,8 +89,17 @@ function App() {
   const renderContent = () => {
     switch (currentView) {
       case 'login':
-        return <Login onLogin={handleLogin} />;
+        return <Login 
+          onLogin={handleLogin}
+          onForgotPassword={()  => setCurrentView('reset-password')}
+        />;
       
+      case 'reset-password':
+        return <ResetPassword onBack={() => setCurrentView('login')} />;
+
+      case 'reset-password-confirm':
+        return <ResetPasswordConfirm />;
+
       case 'user-dashboard':
         return (
           <Layout
@@ -131,7 +156,7 @@ function App() {
         );
       
       default:
-        return <Login onLogin={handleLogin} />;
+        return <Login onLogin={handleLogin} onForgotPassword={() => setCurrentView('reset-password')} />;
     }
   };
 

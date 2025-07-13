@@ -1,49 +1,82 @@
+"use client";
+
 import React, { useState } from 'react';
-import { User, Mail, Lock, UserPlus, LogIn, Shield } from 'lucide-react';
-import { storageUtils } from '../utils/storage';
+import { User, Mail, Lock, UserPlus, LogIn, Shield, Eye, EyeOff } from 'lucide-react';
 import { User as UserType, AdminUser } from '../types';
+import { supabaseUtils } from '@/utils/supabaseUtils';
+import { supabase } from '@/lib/supabase';
 
 interface LoginProps {
   onLogin: (user: UserType | AdminUser, role: 'user' | 'admin' | 'super_admin') => void;
+  onForgotPassword: () => void;
 }
 
-export const Login: React.FC<LoginProps> = ({ onLogin }) => {
+export const Login: React.FC<LoginProps> = ({ onLogin, onForgotPassword }) => {
   const [isRegistering, setIsRegistering] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     fullName: '',
-    userType: 'teacher' as 'teacher' | 'staff'
+    userType: 'teacher' as 'teacher' | 'staff',
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    // Simulate loading delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-
     try {
       if (isRegistering) {
-        // Register new user (only regular users can register)
-        const newUser = storageUtils.registerUser({
+        const { data, error } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+        });
+
+        if (error) throw new Error(error.message);
+        if (!data.user) throw new Error('User not created.');
+
+        const newUser = await supabaseUtils.registerUser({
           email: formData.email,
           password: formData.password,
           fullName: formData.fullName,
-          userType: formData.userType
+          userType: formData.userType,
         });
+
         onLogin(newUser, 'user');
       } else {
-        // Login - check both admin and user
-        const loginResult = storageUtils.validateLogin(formData.email, formData.password);
+        // Semak admin_users dulu
+        const loginResult = await supabaseUtils.validateLogin(formData.email, formData.password);
         if (loginResult) {
           onLogin(loginResult.user, loginResult.role);
-        } else {
-          setError('Invalid email or password');
+          return;
         }
+
+        // Jika bukan admin, login guna Supabase Auth (hash password)
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
+
+        if (error || !data.user) {
+          setError('Invalid email or password');
+          return;
+        }
+
+        const { data: userProfile, error: profileError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profileError || !userProfile) {
+          setError('User profile not found');
+          return;
+        }
+
+        onLogin(userProfile, 'user');
       }
     } catch (error) {
       setError((error as Error).message);
@@ -59,7 +92,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
       email: '',
       password: '',
       fullName: '',
-      userType: 'teacher'
+      userType: 'teacher',
     });
   };
 
@@ -78,29 +111,9 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             {isRegistering ? 'Create Account' : 'Welcome to eBilik'}
           </h2>
           <p className="text-gray-600">
-            {isRegistering 
-              ? 'Register to book eBilik rooms' 
-              : 'Sign in to your account'
-            }
+            {isRegistering ? 'Register to book eBilik rooms' : 'Sign in to your account'}
           </p>
         </div>
-
-        {/* Demo Credentials Info */}
-        {!isRegistering && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-center mb-2">
-              <Shield className="h-5 w-5 text-blue-600 mr-2" />
-              <h3 className="text-sm font-medium text-blue-800">Demo Credentials</h3>
-            </div>
-            <div className="text-sm text-blue-700 space-y-1">
-              <p><strong>Super Admin:</strong></p>
-              <p>Email: khalis.abdrahim@gmail.com</p>
-              <p>Password: Abcd1234</p>
-              <hr className="my-2 border-blue-200" />
-              <p><strong>Register as Teacher/Staff</strong> to test user features</p>
-            </div>
-          </div>
-        )}
 
         <div className="bg-white rounded-xl shadow-lg p-8">
           <form className="space-y-6" onSubmit={handleSubmit}>
@@ -113,7 +126,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 <input
                   type="text"
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                  className="input-field"
                   placeholder="Enter your full name"
                   value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
@@ -129,38 +142,46 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               <input
                 type="email"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                className="input-field"
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               />
             </div>
 
-            <div>
+            <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Lock className="h-4 w-4 inline mr-1" />
                 Password
               </label>
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                className="input-field"
                 placeholder="Enter your password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute top-[2.65rem] right-3 text-gray-500 hover:text-gray-700"
+                aria-label="Toggle password visibility"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
 
             {isRegistering && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  User Type
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">User Type</label>
                 <select
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-white"
+                  className="input-field bg-white"
                   value={formData.userType}
-                  onChange={(e) => setFormData({ ...formData, userType: e.target.value as 'teacher' | 'staff' })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, userType: e.target.value as 'teacher' | 'staff' })
+                  }
                 >
                   <option value="teacher">Teacher</option>
                   <option value="staff">Staff</option>
@@ -177,24 +198,36 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading 
-                ? (isRegistering ? 'Creating Account...' : 'Signing In...') 
-                : (isRegistering ? 'Create Account' : 'Sign In')
-              }
+              {isLoading
+                ? isRegistering
+                  ? 'Creating Account...'
+                  : 'Signing In...'
+                : isRegistering
+                ? 'Create Account'
+                : 'Sign In'}
             </button>
           </form>
+          
+          <div className="text-center mt-4">
+            <button
+              onClick={onForgotPassword}
+              className="text-sm text-primary-600 hover:underline"
+            >
+              Forgot Password?
+            </button>
+          </div>
+
 
           <div className="mt-6 text-center">
             <button
               onClick={toggleMode}
               className="text-primary-600 hover:text-primary-700 font-medium transition-colors"
             >
-              {isRegistering 
-                ? 'Already have an account? Sign in' 
-                : "Don't have an account? Register"
-              }
+              {isRegistering
+                ? 'Already have an account? Sign in'
+                : "Don't have an account? Register"}
             </button>
           </div>
         </div>

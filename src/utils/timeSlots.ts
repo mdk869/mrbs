@@ -1,5 +1,5 @@
 import { Reservation } from '../types';
-import { storageUtils } from './storage';
+import { supabaseUtils } from './supabaseUtils';
 
 export const generateTimeSlots = (): string[] => {
   const slots: string[] = [];
@@ -12,38 +12,47 @@ export const generateTimeSlots = (): string[] => {
   return slots;
 };
 
-export const isTimeSlotAvailable = (date: string, startTime: string, endTime: string, roomName: string): boolean => {
-  const reservations = storageUtils.getReservations();
-  
-  return !reservations.some(reservation => {
+export const isTimeSlotAvailable = async (
+  date: string,
+  startTime: string,
+  endTime: string,
+  roomName: string
+): Promise<boolean> => {
+  const reservations = await supabaseUtils.getReservations();
+
+  return !reservations.some((reservation: Reservation) => {
     if (reservation.date !== date || reservation.roomName !== roomName || reservation.status === 'cancelled') {
       return false;
     }
 
     const resStart = reservation.startTime;
     const resEnd = reservation.endTime;
-    
-    // Check for time overlap
-    return (startTime < resEnd && endTime > resStart);
+
+    return startTime < resEnd && endTime > resStart;
   });
 };
 
-export const getAvailableEndTimes = (date: string, startTime: string, roomName: string): string[] => {
+export const getAvailableEndTimes = async (
+  date: string,
+  startTime: string,
+  roomName: string
+): Promise<string[]> => {
   const allSlots = generateTimeSlots();
   const startIndex = allSlots.indexOf(startTime);
-  
+
   if (startIndex === -1) return [];
-  
+
   const availableEndTimes: string[] = [];
-  
+
   for (let i = startIndex + 1; i < allSlots.length; i++) {
     const endTime = allSlots[i];
-    if (isTimeSlotAvailable(date, startTime, endTime, roomName)) {
+    const available = await isTimeSlotAvailable(date, startTime, endTime, roomName);
+    if (available) {
       availableEndTimes.push(endTime);
     } else {
-      break; // Stop at first conflict
+      break;
     }
   }
-  
+
   return availableEndTimes;
 };

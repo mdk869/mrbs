@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Calendar, Clock, User, Mail, MapPin, CheckCircle, XCircle, AlertCircle, Trash2, SchoolIcon } from 'lucide-react';
-import { storageUtils } from '../utils/storage';
+import { supabaseUtils } from '@/utils/supabaseUtils';
 import { Reservation } from '../types';
 import { format, parseISO } from 'date-fns';
 
@@ -14,19 +14,19 @@ export const AdminDashboard: React.FC = () => {
     loadReservations();
   }, []);
 
-  const loadReservations = () => {
-    const allReservations = storageUtils.getReservations();
+  const loadReservations = async () => {
+    const allReservations = await supabaseUtils.getReservations();
     setReservations(allReservations);
   };
 
-  const handleStatusChange = (id: string, newStatus: Reservation['status']) => {
-    storageUtils.updateReservation(id, { status: newStatus });
+  const handleStatusChange = async (id: string, newStatus: Reservation['status']) => {
+    await supabaseUtils.updateReservation(id, { status: newStatus });
     loadReservations();
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this reservation?')) {
-      storageUtils.deleteReservation(id);
+      await supabaseUtils.deleteReservation(id);
       loadReservations();
     }
   };

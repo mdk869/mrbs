@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, MapPin, Plus, History, User as UserIcon, SchoolIcon, StickyNote, AlignLeftIcon, Edit, Trash2 } from 'lucide-react';
-import { storageUtils } from '../utils/storage';
+import { supabaseUtils } from '@/utils/supabaseUtils';
 import { Reservation, User } from '../types';
 import { format, parseISO, isSameDay } from 'date-fns';
 import ReactCalendar from 'react-calendar';
@@ -23,9 +23,9 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ user, onCreateRese
     loadReservations();
   }, [user.id]);
 
-  const loadReservations = () => {
-    const userRes = storageUtils.getUserReservations(user.id);
-    const allRes = storageUtils.getReservations();
+  const loadReservations =  async () => {
+    const userRes = await supabaseUtils.getUserReservations(user.id);
+    const allRes = await supabaseUtils.getReservations();
     setUserReservations(userRes);
     setAllReservations(allRes);
   };
@@ -43,9 +43,9 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ user, onCreateRese
     });
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (editingReservation) {
-      storageUtils.updateReservation(editingReservation, editFormData);
+      await supabaseUtils.updateReservation(editingReservation, editFormData);
       setEditingReservation(null);
       setEditFormData({});
       loadReservations();
@@ -57,9 +57,9 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ user, onCreateRese
     setEditFormData({});
   };
 
-  const handleDeleteReservation = (id: string) => {
+  const handleDeleteReservation = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this reservation?')) {
-      storageUtils.deleteReservation(id);
+      await supabaseUtils.deleteReservation(id);
       loadReservations();
     }
   };

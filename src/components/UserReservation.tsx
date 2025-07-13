@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Calendar, Clock, User, Mail, MapPin, FileText, Check, ListOrdered, PresentationIcon, ArrowLeftCircle } from 'lucide-react';
-import { storageUtils } from '../utils/storage';
+import { supabaseUtils } from '@/utils/supabaseUtils';
 import { generateTimeSlots, getAvailableEndTimes } from '../utils/timeSlots';
 import { format, addDays, startOfToday } from 'date-fns';
 
@@ -20,7 +20,7 @@ const Tingkatan = [
 ];
 const Kelas = [
   'Ibnu Sina',
-  'Ibnu Rusyad',
+  'Ibnu Rusyd',
   'Ibnu Khaldun',
   'Ibnu Zuhri',
   'Al-Khawarizmi',
@@ -56,11 +56,11 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
   const maxDate = format(addDays(today, 30), 'yyyy-MM-dd');
   const minDate = format(today, 'yyyy-MM-dd');
 
-  const handleStartTimeChange = (startTime: string) => {
+  const handleStartTimeChange = async (startTime: string) => {
     setFormData(prev => ({ ...prev, startTime, endTime: '' }));
     
     if (formData.date && formData.roomName && startTime) {
-      const endTimes = getAvailableEndTimes(formData.date, startTime, formData.roomName);
+      const endTimes = await getAvailableEndTimes(formData.date, startTime, formData.roomName);
       setAvailableEndTimes(endTimes);
     } else {
       setAvailableEndTimes([]);
@@ -75,7 +75,7 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     try {
-      storageUtils.addReservation({
+      await supabaseUtils.addReservation({
         ...formData,
         userId: user.id,
         status: 'confirmed'
@@ -286,7 +286,8 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
               disabled={!formData.startTime || availableEndTimes.length === 0}
             >
               <option value="">Select end time</option>
-              {availableEndTimes.map((time) => (
+              {Array.isArray(availableEndTimes) &&
+                availableEndTimes.map((time) => (
                 <option key={time} value={time}>{time}</option>
               ))}
             </select>
