@@ -121,19 +121,7 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
     );
   }
 
-  return (
-    <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <button
-            onClick={onReturnHome}
-            className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
-          >
-            <MapPin className="h-4 w-4 mr-1 rotate-180" />
-            Return to Home
-          </button>
-          <div></div>
-        </div>
+
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Book a eBilik Room</h2>
         <p className="text-gray-600">Reserve your preferred meeting space with ease</p>
       </div>
