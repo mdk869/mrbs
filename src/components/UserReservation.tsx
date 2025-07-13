@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, User, Mail, MapPin, FileText, Check, ListOrdered, PresentationIcon } from 'lucide-react';
+import { Calendar, Clock, User, Mail, MapPin, FileText, Check, ListOrdered, PresentationIcon, ArrowLeftCircle } from 'lucide-react';
 import { storageUtils } from '../utils/storage';
 import { generateTimeSlots, getAvailableEndTimes } from '../utils/timeSlots';
 import { format, addDays, startOfToday } from 'date-fns';
