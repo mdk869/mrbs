@@ -35,7 +35,7 @@ interface UserReservationProps {
   onReturnHome: () => void;
 }
 
-export const UserReservation: React.FC<UserReservationProps> = ({ user, onReservationComplete }) => {
+export const UserReservation: React.FC<UserReservationProps> = ({ user, onReservationComplete, onReturnHome }) => {
   const [formData, setFormData] = useState({
     userName: user.fullName,
     email: user.email,
@@ -120,10 +120,11 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
       </div>
     );
   }
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Book a eBilik Room</h2>
+
   return (
     <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
       <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Book a eBilik Room</h2>
         <button
           onClick={onReturnHome}
           className="flex items-center text-primary-600 hover:text-primary-700 transition-colors"
@@ -221,7 +222,7 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-white"
               value={formData.tingkatan}
               onChange={(e) => {
-                setFormData({ ...formData, tingkatan: e.target.value })
+                setFormData({ ...formData, tingkatan: e.target.value });
                 setAvailableEndTimes([]);
               }}
             >
@@ -316,6 +317,5 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
         </button>
       </form>
     </div>
-  );
   );
 };
