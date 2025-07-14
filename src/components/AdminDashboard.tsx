@@ -1,22 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Calendar, Clock, User, Mail, MapPin, CheckCircle, XCircle, AlertCircle, Trash2, SchoolIcon } from 'lucide-react';
+import { Search, Calendar, Clock, User, Mail, MapPin, SchoolIcon, Trash2 } from 'lucide-react';
 import { supabaseUtils } from '@/utils/supabaseUtils';
-import { Reservation } from '../types';
+import { Reservation } from '@/types';
 import { format, parseISO } from 'date-fns';
+import { StatusBadge } from './ui/StatusBadge';
+import { StatsCard } from './ui/StatsCard';
+import { LoadingSpinner } from './ui/LoadingSpinner';
+import { useResponsive } from '@/hooks/useResponsive';
 
 export const AdminDashboard: React.FC = () => {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'date' | 'created'>('date');
+  const [isLoading, setIsLoading] = useState(true);
+  const { isMobile } = useResponsive();
 
   useEffect(() => {
     loadReservations();
   }, []);
 
   const loadReservations = async () => {
-    const allReservations = await supabaseUtils.getReservations();
-    setReservations(allReservations);
+    setIsLoading(true);
+    try {
+      const allReservations = await supabaseUtils.getReservations();
+      setReservations(allReservations);
+    } catch (error) {
+      console.error('Error loading reservations:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleStatusChange = async (id: string, newStatus: Reservation['status']) => {
@@ -55,116 +68,67 @@ export const AdminDashboard: React.FC = () => {
       }
     });
 
-  const getStatusIcon = (status: Reservation['status']) => {
-    switch (status) {
-      case 'confirmed':
-        return <CheckCircle className="h-5 w-5 text-secondary-500" />;
-      case 'pending':
-        return <AlertCircle className="h-5 w-5 text-accent-500" />;
-      case 'cancelled':
-        return <XCircle className="h-5 w-5 text-red-500" />;
+  const stats = [
+    {
+      title: 'Total',
+      value: reservations.length,
+      icon: Calendar,
+      iconColor: 'text-gray-600 dark:text-gray-400'
+    },
+    {
+      title: 'Confirmed',
+      value: reservations.filter(r => r.status === 'confirmed').length,
+      icon: Calendar,
+      iconColor: 'text-secondary-600 dark:text-secondary-400'
+    },
+    {
+      title: 'Pending',
+      value: reservations.filter(r => r.status === 'pending').length,
+      icon: Clock,
+      iconColor: 'text-accent-600 dark:text-accent-400'
+    },
+    {
+      title: 'Cancelled',
+      value: reservations.filter(r => r.status === 'cancelled').length,
+      icon: MapPin,
+      iconColor: 'text-red-600 dark:text-red-400'
     }
-  };
+  ];
 
-  const getStatusBadge = (status: Reservation['status']) => {
-    const baseClasses = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium";
-    switch (status) {
-      case 'confirmed':
-        return `${baseClasses} bg-secondary-100 text-secondary-800`;
-      case 'pending':
-        return `${baseClasses} bg-accent-100 text-accent-800`;
-      case 'cancelled':
-        return `${baseClasses} bg-red-100 text-red-800`;
-    }
-  };
-
-  const stats = {
-    total: reservations.length,
-    confirmed: reservations.filter(r => r.status === 'confirmed').length,
-    pending: reservations.filter(r => r.status === 'pending').length,
-    cancelled: reservations.filter(r => r.status === 'cancelled').length,
-  };
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-64">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Calendar className="h-6 w-6 text-gray-400" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Total</dt>
-                  <dd className="text-lg font-medium text-gray-900">{stats.total}</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <CheckCircle className="h-6 w-6 text-secondary-400" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Confirmed</dt>
-                  <dd className="text-lg font-medium text-gray-900">{stats.confirmed}</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <AlertCircle className="h-6 w-6 text-accent-400" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Pending</dt>
-                  <dd className="text-lg font-medium text-gray-900">{stats.pending}</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <XCircle className="h-6 w-6 text-red-400" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Cancelled</dt>
-                  <dd className="text-lg font-medium text-gray-900">{stats.cancelled}</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map((stat, index) => (
+          <StatsCard
+            key={index}
+            title={stat.title}
+            value={stat.value}
+            icon={stat.icon}
+            iconColor={stat.iconColor}
+          />
+        ))}
       </div>
 
       {/* Filters */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <div className="flex flex-col sm:flex-row gap-4">
+      <div className="card p-4 sm:p-6">
+        <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
+                <Search className="h-4 w-4 sm:h-5 sm:w-5 text-muted" />
               </div>
               <input
                 type="text"
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                className="input-field pl-8 sm:pl-10"
                 placeholder="Search reservations..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -172,9 +136,9 @@ export const AdminDashboard: React.FC = () => {
             </div>
           </div>
           
-          <div>
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-none lg:flex lg:space-x-4">
             <select
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+              className="input-field"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -183,11 +147,9 @@ export const AdminDashboard: React.FC = () => {
               <option value="pending">Pending</option>
               <option value="cancelled">Cancelled</option>
             </select>
-          </div>
-          
-          <div>
+            
             <select
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+              className="input-field"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'date' | 'created')}
             >
@@ -199,62 +161,61 @@ export const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Reservations List */}
-      <div className="bg-white shadow overflow-hidden sm:rounded-md">
-        <ul className="divide-y divide-gray-200">
+      <div className="card overflow-hidden">
+        <div className="divide-y divide-gray-200 dark:divide-dark-700">
           {filteredReservations.length === 0 ? (
-            <li className="px-6 py-8 text-center text-gray-500">
+            <div className="px-4 sm:px-6 py-8 text-center text-muted">
               No reservations found matching your criteria.
-            </li>
+            </div>
           ) : (
             filteredReservations.map((reservation) => (
-              <li key={reservation.id}>
-                <div className="px-6 py-4 flex items-center justify-between">
+              <div key={reservation.id} className="p-4 sm:p-6">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-3">
-                      {getStatusIcon(reservation.status)}
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 space-y-2 sm:space-y-0">
                       <div className="flex-1">
-                        <div className="flex items-center space-x-2">
-                          <p className="text-sm font-medium text-gray-900 truncate">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 space-y-1 sm:space-y-0">
+                          <p className="text-sm font-medium text-emphasis truncate">
                             {reservation.userName}
                           </p>
-                          <span className={getStatusBadge(reservation.status)}>
-                            {reservation.status}
-                          </span>
+                          <StatusBadge status={reservation.status} size="sm" />
                         </div>
-                        <div className="mt-1 flex items-center space-x-4 text-sm text-gray-500">
+                        
+                        <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs sm:text-sm text-muted">
                           <div className="flex items-center">
-                            <Mail className="h-4 w-4 mr-1" />
-                            {reservation.email}
+                            <Mail className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
+                            <span className="truncate">{reservation.email}</span>
                           </div>
                           <div className="flex items-center">
-                            <MapPin className="h-4 w-4 mr-1" />
-                            {reservation.roomName}
+                            <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
+                            <span className="truncate">{reservation.roomName}</span>
                           </div>
                           <div className="flex items-center">
-                            <SchoolIcon className="h-4 w-4 mr-1" />
-                            {reservation.tingkatan} {reservation.kelas}
+                            <SchoolIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
+                            <span className="truncate">{reservation.tingkatan} {reservation.kelas}</span>
                           </div>
                           <div className="flex items-center">
-                            <Calendar className="h-4 w-4 mr-1" />
-                            {format(parseISO(reservation.date), 'MMM dd, yyyy')}
+                            <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
+                            <span className="truncate">{format(parseISO(reservation.date), 'MMM dd, yyyy')}</span>
                           </div>
-                          <div className="flex items-center">
-                            <Clock className="h-4 w-4 mr-1" />
-                            {reservation.startTime} - {reservation.endTime}
+                          <div className="flex items-center sm:col-span-2 lg:col-span-1">
+                            <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
+                            <span className="truncate">{reservation.startTime} - {reservation.endTime}</span>
                           </div>
                         </div>
-                        <p className="mt-1 text-sm text-gray-600 truncate">
+                        
+                        <p className="mt-2 text-xs sm:text-sm text-muted truncate">
                           {reservation.purpose}
                         </p>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="flex items-center space-x-2">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
                     <select
                       value={reservation.status}
                       onChange={(e) => handleStatusChange(reservation.id, e.target.value as Reservation['status'])}
-                      className="text-sm border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                      className="text-xs sm:text-sm border border-gray-300 dark:border-dark-600 rounded-md px-2 py-1 bg-white dark:bg-dark-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
                     >
                       <option value="pending">Pending</option>
                       <option value="confirmed">Confirmed</option>
@@ -263,17 +224,17 @@ export const AdminDashboard: React.FC = () => {
                     
                     <button
                       onClick={() => handleDelete(reservation.id)}
-                      className="text-red-600 hover:text-red-900 p-1 rounded-md hover:bg-red-50 transition-colors"
+                      className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors self-center"
                       title="Delete reservation"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
-              </li>
+              </div>
             ))
           )}
-        </ul>
+        </div>
       </div>
     </div>
   );

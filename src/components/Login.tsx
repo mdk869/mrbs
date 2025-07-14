@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState } from 'react';
-import { User, Mail, Lock, UserPlus, LogIn, Shield, Eye, EyeOff } from 'lucide-react';
+import { User, Mail, Lock, UserPlus, LogIn, Eye, EyeOff } from 'lucide-react';
 import { User as UserType, AdminUser } from '@/types';
 import { supabaseUtils } from '@/utils/supabaseUtils';
 import { supabase } from '@/lib/supabase';
+import { LoadingSpinner } from './ui/LoadingSpinner';
+import { useResponsive } from '@/hooks/useResponsive';
 
 interface LoginProps {
   onLogin: (user: UserType | AdminUser, role: 'user' | 'admin' | 'super_admin') => void;
@@ -22,6 +24,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onForgotPassword }) => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { isMobile } = useResponsive();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,14 +50,12 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onForgotPassword }) => {
 
         onLogin(newUser, 'user');
       } else {
-        // Semak admin_users dulu
         const loginResult = await supabaseUtils.validateLogin(formData.email, formData.password);
         if (loginResult) {
           onLogin(loginResult.user, loginResult.role);
           return;
         }
 
-        // Jika bukan admin, login guna Supabase Auth (hash password)
         const { data, error } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
@@ -97,29 +98,29 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onForgotPassword }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-dark-900 dark:to-dark-800 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-6 sm:space-y-8">
         <div className="text-center">
-          <div className="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-primary-100 mb-4">
+          <div className="mx-auto h-12 w-12 sm:h-16 sm:w-16 flex items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30 mb-4">
             {isRegistering ? (
-              <UserPlus className="h-8 w-8 text-primary-600" />
+              <UserPlus className="h-6 w-6 sm:h-8 sm:w-8 text-primary-600 dark:text-primary-400" />
             ) : (
-              <LogIn className="h-8 w-8 text-primary-600" />
+              <LogIn className="h-6 w-6 sm:h-8 sm:w-8 text-primary-600 dark:text-primary-400" />
             )}
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl sm:text-3xl font-bold text-emphasis mb-2">
             {isRegistering ? 'Create Account' : 'Welcome to eBilik'}
           </h2>
-          <p className="text-gray-600">
+          <p className="text-muted text-sm sm:text-base">
             {isRegistering ? 'Register to book eBilik rooms' : 'Sign in to your account'}
           </p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+        <div className="card p-6 sm:p-8">
+          <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
             {isRegistering && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-emphasis mb-2">
                   <User className="h-4 w-4 inline mr-1" />
                   Full Name
                 </label>
@@ -135,7 +136,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onForgotPassword }) => {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-emphasis mb-2">
                 <Mail className="h-4 w-4 inline mr-1" />
                 Email Address
               </label>
@@ -150,14 +151,14 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onForgotPassword }) => {
             </div>
 
             <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-emphasis mb-2">
                 <Lock className="h-4 w-4 inline mr-1" />
                 Password
               </label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
-                className="input-field"
+                className="input-field pr-10"
                 placeholder="Enter your password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -165,7 +166,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onForgotPassword }) => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute top-[2.65rem] right-3 text-gray-500 hover:text-gray-700"
+                className="absolute top-[2.65rem] right-3 text-muted hover:text-emphasis transition-colors"
                 aria-label="Toggle password visibility"
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -174,10 +175,10 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onForgotPassword }) => {
 
             {isRegistering && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">User Type</label>
+                <label className="block text-sm font-medium text-emphasis mb-2">User Type</label>
                 <select
                   required
-                  className="input-field bg-white"
+                  className="input-field"
                   value={formData.userType}
                   onChange={(e) =>
                     setFormData({ ...formData, userType: e.target.value as 'teacher' | 'staff' })
@@ -190,39 +191,42 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onForgotPassword }) => {
             )}
 
             {error && (
-              <div className="rounded-lg bg-red-50 p-4 border border-red-200">
-                <div className="text-sm text-red-700">{error}</div>
+              <div className="rounded-lg bg-red-50 dark:bg-red-900/20 p-3 sm:p-4 border border-red-200 dark:border-red-800">
+                <div className="text-sm text-red-700 dark:text-red-400">{error}</div>
               </div>
             )}
 
             <button
               type="submit"
               disabled={isLoading}
-              className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary w-full flex items-center justify-center space-x-2"
             >
-              {isLoading
-                ? isRegistering
-                  ? 'Creating Account...'
-                  : 'Signing In...'
-                : isRegistering
-                ? 'Create Account'
-                : 'Sign In'}
+              {isLoading && <LoadingSpinner size="sm" />}
+              <span>
+                {isLoading
+                  ? isRegistering
+                    ? 'Creating Account...'
+                    : 'Signing In...'
+                  : isRegistering
+                  ? 'Create Account'
+                  : 'Sign In'}
+              </span>
             </button>
           </form>
           
           <div className="text-center mt-4">
             <button
               onClick={onForgotPassword}
-              className="text-sm text-primary-600 hover:underline"
+              className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
             >
               Forgot Password?
             </button>
           </div>
 
-          <div className="mt-6 text-center">
+          <div className="mt-4 sm:mt-6 text-center">
             <button
               onClick={toggleMode}
-              className="text-primary-600 hover:text-primary-700 font-medium transition-colors"
+              className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors text-sm sm:text-base"
             >
               {isRegistering
                 ? 'Already have an account? Sign in'

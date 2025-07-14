@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Mail } from 'lucide-react';
+import { Mail, ArrowLeft } from 'lucide-react';
+import { LoadingSpinner } from './ui/LoadingSpinner';
 
 export const ResetPassword: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [email, setEmail] = useState('');
@@ -34,20 +35,20 @@ export const ResetPassword: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-dark-900 dark:to-dark-800 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-6 sm:space-y-8">
         <div className="text-center">
-          <div className="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-primary-100 mb-4">
-            <Mail className="h-8 w-8 text-primary-600" />
+          <div className="mx-auto h-12 w-12 sm:h-16 sm:w-16 flex items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30 mb-4">
+            <Mail className="h-6 w-6 sm:h-8 sm:w-8 text-primary-600 dark:text-primary-400" />
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Reset Password</h2>
-          <p className="text-gray-600">Enter your email to receive reset instructions</p>
+          <h2 className="text-2xl sm:text-3xl font-bold text-emphasis mb-2">Reset Password</h2>
+          <p className="text-muted text-sm sm:text-base">Enter your email to receive reset instructions</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          <form className="space-y-6" onSubmit={handleReset}>
+        <div className="card p-6 sm:p-8">
+          <form className="space-y-4 sm:space-y-6" onSubmit={handleReset}>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+              <label className="block text-sm font-medium text-emphasis mb-2">Email Address</label>
               <input
                 type="email"
                 required
@@ -59,27 +60,33 @@ export const ResetPassword: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             </div>
 
             {error && (
-              <div className="bg-red-100 text-red-700 p-2 rounded">{error}</div>
+              <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 p-3 rounded-lg border border-red-200 dark:border-red-800 text-sm">
+                {error}
+              </div>
             )}
             {message && (
-              <div className="bg-green-100 text-green-700 p-2 rounded">{message}</div>
+              <div className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 p-3 rounded-lg border border-green-200 dark:border-green-800 text-sm">
+                {message}
+              </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full"
+              className="btn-primary w-full flex items-center justify-center space-x-2"
             >
-              {loading ? 'Sending...' : 'Send Reset Link'}
+              {loading && <LoadingSpinner size="sm" />}
+              <span>{loading ? 'Sending...' : 'Send Reset Link'}</span>
             </button>
           </form>
 
           <div className="mt-4 text-center">
             <button
               onClick={onBack}
-              className="text-sm text-primary-600 hover:underline"
+              className="text-sm text-primary-600 dark:text-primary-400 hover:underline flex items-center justify-center space-x-1"
             >
-              Back to Login
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back to Login</span>
             </button>
           </div>
         </div>

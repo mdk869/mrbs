@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, User, Mail, MapPin, FileText, Check, ListOrdered, PresentationIcon, ArrowLeftCircle } from 'lucide-react';
+import { Calendar, Clock, User, Mail, MapPin, FileText, Check, ListOrdered, PresentationIcon, ArrowLeft } from 'lucide-react';
 import { supabaseUtils } from '@/utils/supabaseUtils';
-import { generateTimeSlots, getAvailableEndTimes } from '../utils/timeSlots';
+import { generateTimeSlots, getAvailableEndTimes } from '@/utils/timeSlots';
 import { format, addDays, startOfToday } from 'date-fns';
+import { LoadingSpinner } from './ui/LoadingSpinner';
+import { useResponsive } from '@/hooks/useResponsive';
 
 const MEETING_ROOMS = [
   'Makmal Komputer 1',
@@ -11,13 +13,8 @@ const MEETING_ROOMS = [
   'Bilik Tayangan',
   'Bilik Audio/Visual'
 ];
-const Tingkatan = [
-  '1',
-  '2',
-  '3',
-  '4',
-  '5'
-];
+
+const Tingkatan = ['1', '2', '3', '4', '5'];
 const Kelas = [
   'Ibnu Sina',
   'Ibnu Rusyd',
@@ -50,6 +47,7 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [availableEndTimes, setAvailableEndTimes] = useState<string[]>([]);
+  const { isMobile } = useResponsive();
 
   const timeSlots = generateTimeSlots();
   const today = startOfToday();
@@ -71,7 +69,6 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     try {
@@ -103,17 +100,17 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
 
   if (submitted) {
     return (
-      <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-8 text-center">
-        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-secondary-100 mb-4">
-          <Check className="h-6 w-6 text-secondary-600" />
+      <div className="max-w-md mx-auto card p-6 sm:p-8 text-center">
+        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-secondary-100 dark:bg-secondary-900/30 mb-4">
+          <Check className="h-6 w-6 text-secondary-600 dark:text-secondary-400" />
         </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Reservation Confirmed!</h3>
-        <p className="text-gray-600 mb-6">
+        <h3 className="text-lg font-medium text-emphasis mb-2">Reservation Confirmed!</h3>
+        <p className="text-muted mb-6 text-sm sm:text-base">
           Your eBilik room has been successfully booked. You will receive a confirmation email shortly.
         </p>
         <button
           onClick={() => setSubmitted(false)}
-          className="w-full bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 transition-colors"
+          className="btn-primary w-full"
         >
           Book Another Room
         </button>
@@ -122,33 +119,33 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
   }
 
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Book a eBilik Room</h2>
+    <div className="max-w-4xl mx-auto card p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 space-y-4 sm:space-y-0">
+        <h2 className="text-xl sm:text-2xl font-bold text-emphasis">Book a eBilik Room</h2>
         <button
           onClick={onReturnHome}
-          className="flex items-center text-primary-600 hover:text-primary-700 transition-colors"
+          className="btn-ghost flex items-center justify-center sm:justify-start space-x-2"
         >
-          <ArrowLeftCircle className="h-4 w-4 mr-1 transform rotate-180" />
-          Return to Home
+          <ArrowLeft className="h-4 w-4" />
+          <span>Return to Home</span>
         </button>
       </div>
 
-      <div className="text-center mb-8">
-        <p className="text-gray-600">Reserve your preferred meeting space with ease</p>
+      <div className="text-center mb-6 sm:mb-8">
+        <p className="text-muted text-sm sm:text-base">Reserve your preferred meeting space with ease</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-emphasis mb-2">
               <User className="h-4 w-4 inline mr-1" />
               Full Name
             </label>
             <input
               type="text"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-gray-50"
+              className="input-field bg-gray-50 dark:bg-dark-700"
               placeholder="Enter your full name"
               value={formData.userName}
               readOnly
@@ -156,14 +153,14 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-emphasis mb-2">
               <Mail className="h-4 w-4 inline mr-1" />
               Email Address
             </label>
             <input
               type="email"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-gray-50"
+              className="input-field bg-gray-50 dark:bg-dark-700"
               placeholder="Enter your email"
               value={formData.email}
               readOnly
@@ -171,9 +168,9 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-emphasis mb-2">
               <Calendar className="h-4 w-4 inline mr-1" />
               Date
             </label>
@@ -182,7 +179,7 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
               required
               min={minDate}
               max={maxDate}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              className="input-field"
               value={formData.date}
               onChange={(e) => {
                 setFormData({ ...formData, date: e.target.value, startTime: '', endTime: '' });
@@ -192,13 +189,13 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-emphasis mb-2">
               <MapPin className="h-4 w-4 inline mr-1" />
               eBilik Room
             </label>
             <select
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-white"
+              className="input-field"
               value={formData.roomName}
               onChange={(e) => {
                 setFormData({ ...formData, roomName: e.target.value, startTime: '', endTime: '' });
@@ -213,18 +210,15 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-emphasis mb-2">
               <ListOrdered className="h-4 w-4 inline mr-1" />
               Tingkatan
             </label>
             <select
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-white"
+              className="input-field"
               value={formData.tingkatan}
-              onChange={(e) => {
-                setFormData({ ...formData, tingkatan: e.target.value });
-                setAvailableEndTimes([]);
-              }}
+              onChange={(e) => setFormData({ ...formData, tingkatan: e.target.value })}
             >
               <option value="">Select Tingkatan</option>
               {Tingkatan.map((ting) => (
@@ -232,19 +226,17 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
               ))}
             </select>
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-emphasis mb-2">
               <PresentationIcon className="h-4 w-4 inline mr-1" />
               Kelas
             </label>
             <select
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-white"
+              className="input-field"
               value={formData.kelas}
-              onChange={(e) => {
-                setFormData({ ...formData, kelas: e.target.value });
-                setAvailableEndTimes([]);
-              }}
+              onChange={(e) => setFormData({ ...formData, kelas: e.target.value })}
             >
               <option value="">Select Kelas</option>
               {Kelas.map((kelas) => (
@@ -254,15 +246,15 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-emphasis mb-2">
               <Clock className="h-4 w-4 inline mr-1" />
               Start Time
             </label>
             <select
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-white"
+              className="input-field"
               value={formData.startTime}
               onChange={(e) => handleStartTimeChange(e.target.value)}
             >
@@ -274,13 +266,13 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-emphasis mb-2">
               <Clock className="h-4 w-4 inline mr-1" />
               End Time
             </label>
             <select
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors bg-white"
+              className="input-field"
               value={formData.endTime}
               onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
               disabled={!formData.startTime || availableEndTimes.length === 0}
@@ -295,14 +287,14 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-emphasis mb-2">
             <FileText className="h-4 w-4 inline mr-1" />
             Meeting Purpose
           </label>
           <textarea
             required
             rows={3}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+            className="input-field"
             placeholder="Brief description of the meeting purpose"
             value={formData.purpose}
             onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
@@ -312,9 +304,10 @@ export const UserReservation: React.FC<UserReservationProps> = ({ user, onReserv
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+          className="btn-primary w-full flex items-center justify-center space-x-2"
         >
-          {isSubmitting ? 'Booking...' : 'Book eBilik Room'}
+          {isSubmitting && <LoadingSpinner size="sm" />}
+          <span>{isSubmitting ? 'Booking...' : 'Book eBilik Room'}</span>
         </button>
       </form>
     </div>
