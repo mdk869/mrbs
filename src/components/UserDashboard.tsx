@@ -1,10 +1,14 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, MapPin, Plus, History, User as UserIcon, SchoolIcon, StickyNote, AlignLeftIcon, Edit, Trash2 } from 'lucide-react';
 import { supabaseUtils } from '@/utils/supabaseUtils';
-import { Reservation, User } from '../types';
+import { Reservation, User } from '@/types';
 import { format, parseISO, isSameDay } from 'date-fns';
-import ReactCalendar from 'react-calendar';
+import dynamic from 'next/dynamic';
 import 'react-calendar/dist/Calendar.css';
+
+const ReactCalendar = dynamic(() => import('react-calendar'), { ssr: false });
 
 interface UserDashboardProps {
   user: User;
@@ -23,7 +27,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ user, onCreateRese
     loadReservations();
   }, [user.id]);
 
-  const loadReservations =  async () => {
+  const loadReservations = async () => {
     const userRes = await supabaseUtils.getUserReservations(user.id);
     const allRes = await supabaseUtils.getReservations();
     setUserReservations(userRes);

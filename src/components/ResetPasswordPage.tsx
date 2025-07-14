@@ -1,4 +1,5 @@
-// src/components/ResetPassword.tsx
+'use client';
+
 import React, { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Mail } from 'lucide-react';
@@ -15,8 +16,12 @@ export const ResetPassword: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     setError('');
     setLoading(true);
 
+    const redirectUrl = typeof window !== 'undefined' 
+      ? `${window.location.origin}/reset-password` 
+      : 'http://localhost:3000/reset-password';
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`, // adjust as needed
+      redirectTo: redirectUrl,
     });
 
     if (error) {

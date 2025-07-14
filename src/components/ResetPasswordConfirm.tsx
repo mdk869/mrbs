@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
@@ -7,14 +9,16 @@ export const ResetPasswordConfirm = () => {
   const [status, setStatus] = useState('');
 
   useEffect(() => {
-    const hash = window.location.hash;
-    const params = new URLSearchParams(hash.replace('#', ''));
-    const accessToken = params.get('access_token');
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash;
+      const params = new URLSearchParams(hash.replace('#', ''));
+      const accessToken = params.get('access_token');
 
-    if (accessToken) {
-      setToken(accessToken);
-    } else {
-      setStatus('Token tidak sah.');
+      if (accessToken) {
+        setToken(accessToken);
+      } else {
+        setStatus('Token tidak sah.');
+      }
     }
   }, []);
 
@@ -32,7 +36,9 @@ export const ResetPasswordConfirm = () => {
 
       // ✅ Redirect selepas beberapa saat
       setTimeout(() => {
-        window.location.href = '/'; // jika guna Vite
+        if (typeof window !== 'undefined') {
+          window.location.href = '/';
+        }
       }, 2000);
     }
   };

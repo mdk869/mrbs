@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { User, Mail, Lock, UserPlus, LogIn, Shield, Eye, EyeOff } from 'lucide-react';
-import { User as UserType, AdminUser } from '../types';
+import { User as UserType, AdminUser } from '@/types';
 import { supabaseUtils } from '@/utils/supabaseUtils';
 import { supabase } from '@/lib/supabase';
 
@@ -218,7 +218,6 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onForgotPassword }) => {
               Forgot Password?
             </button>
           </div>
-
 
           <div className="mt-6 text-center">
             <button
